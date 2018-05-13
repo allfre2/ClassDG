@@ -1,6 +1,7 @@
 #whitelist
 *
 !ClassDG.java
+!index.html
 !sigma.min.js
 !sigma.parsers.json.min.js
 !.gitignore
