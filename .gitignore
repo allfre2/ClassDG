@@ -2,6 +2,6 @@
 *
 !ClassDG.java
 !index.html
-!sigma.min.js
-!sigma.parsers.json.min.js
+!sigma/
+!resources/
 !.gitignore
