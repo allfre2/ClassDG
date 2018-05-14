@@ -150,7 +150,7 @@ public class ClassDG{
     sigmaJsonDG += "    \"x\": " + nodePoints[i][0] + ",\n";
     sigmaJsonDG += "    \"y\": " + nodePoints[i][1] + ",\n";
     sigmaJsonDG += "    \"color\": \"" + colors[color] + "\",\n";
-    sigmaJsonDG += "    \"size\": 3\n";
+    sigmaJsonDG += "    \"size\": 10\n";
     sigmaJsonDG += "   },";
   }
    sigmaJsonDG = removeLastChars(sigmaJsonDG,1); // remove trailing comma
