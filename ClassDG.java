@@ -38,7 +38,8 @@ public class ClassDG{
   javaFiles =
     Arrays .asList( (new File(path)).listFiles() )
            .stream()
-           .filter(f -> f.getName().endsWith(".java"))
+           .filter(f -> !f.isDirectory()
+                      && f.getName().endsWith(".java"))
            .collect(Collectors.toList());
 
   classNames =
