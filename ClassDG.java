@@ -29,47 +29,34 @@ public class ClassDG{
 
  boolean randomShape = false;
 
- String[] sigmaScripts = {"./sigma.min.js", "./sigma.parsers.json.min.js"};
-
  public ClassDG(String path){
 
   DGraph = new HashMap<>();
 
   javaFiles =
-    Arrays .asList( (new File(path)).listFiles() )
-           .stream()
-           .filter(f -> !f.isDirectory()
-                      && f.getName().endsWith(".java"))
-           .collect(Collectors.toList());
+    Arrays
+     .asList((new File(path))
+     .listFiles())
+     .stream()
+     .filter(f -> !f.isDirectory() && f.getName().endsWith(".java"))
+     .collect(Collectors.toList());
 
   classNames =
-   javaFiles.stream()
-            .map(this::getClassName)
-            .collect(Collectors.toList());
+    javaFiles
+     .stream()
+     .map(this::getClassName)
+     .collect(Collectors.toList());
 
   for(File file: javaFiles){
-     HashSet<String> dep = new HashSet<>();
      String type = getClassName(file);
-     String lines = "";
 
-    try(BufferedReader br =
-         new BufferedReader(new FileReader(file))){
-      String line;
-      while((line = br.readLine()) != null)
-        lines += line;
+     final String fileStr = readFile(file);
 
-      }catch(IOException e){
-       e.printStackTrace();
-      }
-       final String fileStr = lines;
-       dep.addAll(javaFiles
-                  .stream()
-                  .map(this::getClassName)
-                  .filter(s -> !s.equals(type)
-                              && fileStr.matches(".*\\W+"+s+"\\W+.*"))
-                  .collect(Collectors.toList()));
-
-     DGraph.put(type, new ArrayList<String>(dep));
+     DGraph.put(type, new ArrayList<String>(javaFiles
+      .stream()
+      .map(this::getClassName)
+      .filter(s -> !s.equals(type) && fileStr.matches(".*\\W+"+s+"\\W+.*"))
+      .collect(Collectors.toList())));
    }
 
     nodePoints = new double[javaFiles.size()][2];
@@ -88,6 +75,19 @@ public class ClassDG{
   for(Map.Entry<String, List<String>> entry: DGraph.entrySet()){
    System.out.println(entry.getKey() + " -> " + entry.getValue());
   }
+ }
+
+ private String readFile(File file){
+    String lines = "";
+    try(BufferedReader br =
+         new BufferedReader(new FileReader(file))){
+      String line;
+      while((line = br.readLine()) != null)
+        lines += line;
+    }catch(IOException e){
+      e.printStackTrace();
+    }
+  return lines;
  }
 
  private String getClassName(File f){
@@ -122,14 +122,10 @@ public class ClassDG{
   }
  }
 
- private static String removeLastChars(String s, int n){
-  return s.substring(0, s.length()
-                         - ((n < 0 || n > s.length()) ? 0: n));
- }
-
+ // Refactor this hideous method asap
  public String getSigmaJsonDG(){
 
-  String sigmaJsonDG = "{\n  \"nodes\": [";
+  String json = "{\n  \"nodes\": [";
   int maxAdjEdges = classNames.size()-1;
   String[] colors = {"#8fbc8f","#7fffd4","#ffd700",
                      "#d2691e","#6495ed","#00008b",
@@ -139,34 +135,34 @@ public class ClassDG{
     double tmp = ((double)DGraph.get(name).size()/(double)maxAdjEdges)*100;
     int color = (int) Math.floor(tmp/9);
     color = color > colors.length-1 ? colors.length-1 : color;
-    sigmaJsonDG += "\n   {\n    ";
-    sigmaJsonDG += "\"id\": \"" + classNames.get(i) + "\",\n";
-    sigmaJsonDG += "    \"label\": \"" + name + "(" + DGraph.get(name).size() + ")" + "\",\n";
-    sigmaJsonDG += "    \"x\": " + nodePoints[i][0] + ",\n";
-    sigmaJsonDG += "    \"y\": " + nodePoints[i][1] + ",\n";
-    sigmaJsonDG += "    \"color\": \"" + colors[color] + "\",\n";
-    sigmaJsonDG += "    \"size\": 10\n";
-    sigmaJsonDG += "   },";
+    json += "\n   {\n    ";
+    json += "\"id\": \"" + classNames.get(i) + "\",\n";
+    json += "    \"label\": \"" + name + "(" + DGraph.get(name).size() + ")" + "\",\n";
+    json += "    \"x\": " + nodePoints[i][0] + ",\n";
+    json += "    \"y\": " + nodePoints[i][1] + ",\n";
+    json += "    \"color\": \"" + colors[color] + "\",\n";
+    json += "    \"size\": 10\n";
+    json += "   },";
   }
-   sigmaJsonDG = removeLastChars(sigmaJsonDG,1); // remove trailing comma
-   sigmaJsonDG += "\n ],\n";
+   json = json.substring(0,json.length()-1); // Remove trailing comma
+   json += "\n ],\n";
 
-  sigmaJsonDG += "  \"edges\": [";
+  json += "  \"edges\": [";
   for(int i = 0; i < classNames.size(); ++i){
     String name = classNames.get(i);
    for(String target: DGraph.get(name)){
-    sigmaJsonDG += "\n   {\n";
-    sigmaJsonDG += "     \"id\": \"" + name + "-" + target + "\",\n";
-    sigmaJsonDG += "     \"source\": \"" + name + "\",\n";
-    sigmaJsonDG += "     \"target\": \"" + target + "\",\n";
-    sigmaJsonDG += "     \"type\": \"arrow\"\n";
-    sigmaJsonDG += "   },";
+    json += "\n   {\n";
+    json += "     \"id\": \"" + name + "-" + target + "\",\n";
+    json += "     \"source\": \"" + name + "\",\n";
+    json += "     \"target\": \"" + target + "\",\n";
+    json += "     \"type\": \"arrow\"\n";
+    json += "   },";
    }
   }
-   sigmaJsonDG = removeLastChars(sigmaJsonDG,1);
-   sigmaJsonDG += "\n ]\n}";
+   json = json.substring(0,json.length()-1);
+   json += "\n ]\n}";
 
-   return sigmaJsonDG;
+   return json;
  }
 
  public void createSigmaJsonFile(){
@@ -180,31 +176,10 @@ public class ClassDG{
     bWriter.write("data =\n" + sigmaJsonDG + ";\n");
     bWriter.close();
     System.out.println("Created File: " + path);
+
   }catch(IOException e){
     e.printStackTrace();
   }
- }
-
- public String jsonDG(){
-
-  String jsonStr = "{";
-
-  for(Map.Entry<String, List<String>> entry: DGraph.entrySet()){
-   jsonStr += "\n  \"" + entry.getKey() + "\": [";
-   List<String> dep = entry.getValue();
-
-   for(int i = 0; i < dep.size(); ++i){
-    jsonStr += "\"" + dep.get(i) + "\", ";
-   }
-
-    jsonStr = removeLastChars(jsonStr,2);
-    jsonStr += "],";
-  }
-
-  jsonStr = removeLastChars(jsonStr,1);
-  jsonStr += "\n}\n";
-
-  return jsonStr;
  }
 
  public static void main(String[] args){
