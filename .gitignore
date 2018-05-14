@@ -1,7 +1,0 @@
-#whitelist
-*
-!sigma/
-!resources/
-!ClassDG.java
-!index.html
-!.gitignore
