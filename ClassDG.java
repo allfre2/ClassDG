@@ -163,7 +163,7 @@ public class ClassDG{
     sigmaJsonDG += "   },";
    }
   }
-   sigmaJsonDG = removeLastChars(sigmaJsonDG,1); // remove trailing comma
+   sigmaJsonDG = removeLastChars(sigmaJsonDG,1);
    sigmaJsonDG += "\n ]\n}";
 
    return sigmaJsonDG;
@@ -214,7 +214,6 @@ public class ClassDG{
     ClassDG dg = new ClassDG(args[0]);
       dg.setRandomShape(false);
       dg.createSigmaJsonFile();
-      dg.printAdjTable();
   }
  }
 }
