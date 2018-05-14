@@ -2,6 +2,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,8 +18,9 @@ import java.awt.Dimension;
 // Creates a HashMap that contains a Class "Dependency" Graph
 public class ClassDG{
 
- List<String> classNames;
  HashMap<String, List<String>> DGraph;
+ List<File> javaFiles;
+ List<String> classNames;
 
  // Screen dimentions
  int width, height;
@@ -33,7 +35,7 @@ public class ClassDG{
 
   DGraph = new HashMap<>();
 
-  List<File> javaFiles =
+  javaFiles =
     Arrays .asList( (new File(path)).listFiles() )
            .stream()
            .filter(f -> f.getName().endsWith(".java"))
@@ -41,29 +43,35 @@ public class ClassDG{
 
   classNames =
    javaFiles.stream()
-            .map(this::simpleFileName)
+            .map(this::getClassName)
             .collect(Collectors.toList());
 
-  for(int i = 0; i < javaFiles.size(); ++i){
-   List<String> dependencies = new ArrayList<>();
-    try(BufferedReader br = new BufferedReader(new FileReader(javaFiles.get(i)))){
-     String line;
-     List<String> tmp;
-      while((line = br.readLine()) != null){
-       tmp = matches(line, classNames, i);
+  for(File file: javaFiles){
+     HashSet<String> dep = new HashSet<>();
+     String type = getClassName(file);
+     String lines = "";
 
-        for(String str: tmp){
-          if(!dependencies.contains(str)){
-            dependencies.add(str);
-          }
-        }
-       }
+    try(BufferedReader br =
+         new BufferedReader(new FileReader(file))){
+      String line;
+      while((line = br.readLine()) != null)
+        lines += line;
+
       }catch(IOException e){
        e.printStackTrace();
       }
-     DGraph.put(classNames.get(i), dependencies);
+       final String fileStr = lines;
+       dep.addAll(javaFiles
+                  .stream()
+                  .map(this::getClassName)
+                  .filter(s -> !s.equals(type)
+                              && fileStr.matches(".*\\W+"+s+"\\W+.*"))
+                  .collect(Collectors.toList()));
+
+     DGraph.put(type, new ArrayList<String>(dep));
    }
-    nodePoints = new double[classNames.size()][2];
+
+    nodePoints = new double[javaFiles.size()][2];
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     width = (int)screenSize.getWidth();
     height = (int)screenSize.getHeight();
@@ -75,42 +83,28 @@ public class ClassDG{
   calcNodePoints();
  }
 
- public HashMap<String, List<String>> getDG(){
-  return this.DGraph;
- }
-
  public void printAdjTable(){
   for(Map.Entry<String, List<String>> entry: DGraph.entrySet()){
    System.out.println(entry.getKey() + " -> " + entry.getValue());
   }
  }
 
- private String simpleFileName(File f){
+ private String getClassName(File f){
   return f.getName().replaceAll("\\.java", "");
  }
 
- private List<String> matches(String line, List<String> options, int exclude){
-  List<String> dependencies = new ArrayList<>();
-  for(int i = 0; i < options.size(); ++i){
-   if(i != exclude && line.matches(".*\\W+"+options.get(i)+"\\W+.*")){
-    dependencies.add(options.get(i));
-   }
-  }
-  return dependencies;
- }
-
  private void calcNodePoints(){
+  int numberOfFiles = javaFiles.size();
   int[] center = {width/2, height/2}; 
   double x = center[0];
   double y = height;
-  double θ = 360 / (double)classNames.size();
+  double θ = 360 / (double)numberOfFiles;
   double r = height/2;
-  int maxAdjEdges = classNames.size()-1;
 
-  for(int i = 0; i < classNames.size(); ++i){
+  for(int i = 0; i < numberOfFiles; ++i){
 
-    double shrink = //1;
-      1.0 - (double)(DGraph.get(classNames.get(i)).size()/maxAdjEdges);
+    double shrink =
+      1.0 - (double)(DGraph.get(getClassName(javaFiles.get(i))).size()/numberOfFiles-1);
 
     if(randomShape){
      nodePoints[i][0] = new Random().nextDouble();
@@ -219,6 +213,7 @@ public class ClassDG{
     ClassDG dg = new ClassDG(args[0]);
       dg.setRandomShape(false);
       dg.createSigmaJsonFile();
+      dg.printAdjTable();
   }
  }
 }
