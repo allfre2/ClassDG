@@ -65,8 +65,8 @@ public class ClassDG{
 
     nodePoints = new double[javaFiles.size()][2];
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    width = (int)screenSize.getWidth();
-    height = (int)screenSize.getHeight();
+    width = (int)screenSize.getWidth()/8;
+    height = (int)screenSize.getHeight()/8;
     calcNodePoints();
  }
 
@@ -201,7 +201,7 @@ public class ClassDG{
     double[] point = getPoint(name);
     nodes +=
      sigmaNode(Arrays.asList(name, DGraph.get(name).size(),
-      point[0], point[1], selectColor(name), 1));
+      point[0], point[1], selectColor(name), 15));
     nodes += ",";
 
     //edges

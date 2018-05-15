@@ -29,33 +29,23 @@
 <script src ="sigma/sigma.renderers.edgeLabels.min.js"></script>
 <script src ="sigma/sigma.renderers.parallelEdges.min.js"></script>
 <script src ="sigma/sigma.renderers.snapshot.min.js"></script>
-<script src ="sigma/sigma.require.js"></script>
+<!--script src ="sigma/sigma.require.js"></script-->
 <script src ="sigma/sigma.statistics.HITS.min.js"></script>
 
 <div id="container"></div>
 
 <script src="data.js"></script>
 <script>
-  s = new sigma({
+  const s = new sigma({
    graph: data,
    container: 'container',
    settings: {
     minNodeSize: 3,
-    maxNodeSize: 10
+    maxNodeSize: 8,
+    minEdgeSize: 3,
+    maxEdgeSize: 5
    }   
   });
-
-  var nodes = s.graph.nodes();
-  s.bind('overNode', function (d) {
-   d.data.node.size = maxNodeSize;
-   s.refresh();
-  });
-
-  s.bind('outNode', function (d) {
-   d.data.node.size = minNodeSize;
-   s.refresh();
-  });
-
 </script>
 </body>
 </html>
