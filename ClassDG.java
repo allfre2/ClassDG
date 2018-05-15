@@ -289,6 +289,7 @@ public class ClassDG{
  public static void main(String[] args){
   if(args.length < 1){
     System.out.println("\nUsage:\n\tjava ClassDG [directory]\n");
+    System.exit(-1);
   }else{
     ClassDG dg = new ClassDG(args[0]);
       dg.printCycles();
