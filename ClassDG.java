@@ -172,17 +172,18 @@ public class ClassDG{
   for(int i = 0; i < numberOfFiles; ++i){
 
     double shrink =
-      //1.0 -
+      1.0 -
     (double)(DGraph.get(getClassName(javaFiles.get(i))).size()/numberOfFiles-1);
 
     if(randomShape){
      nodePoints[i][0] = new Random().nextDouble();
      nodePoints[i][1] = new Random().nextDouble();
     }else{
-     nodePoints[i][0] = center[0] + (r*Math.cos((i+1)*θ));
-     nodePoints[i][1] = center[1] + (r*Math.sin((i+1)*θ));
-     nodePoints[i][0] *= shrink;
-     nodePoints[i][1] *= shrink;
+      double radius = r*shrink;
+     nodePoints[i][0] = center[0] + (radius*Math.cos((i+1)*θ));
+     nodePoints[i][1] = center[1] + (radius*Math.sin((i+1)*θ));
+     nodePoints[i][0] -= shrink;
+     nodePoints[i][1] -= shrink;
     }
 
     x = nodePoints[i][0];
