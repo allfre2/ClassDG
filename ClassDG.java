@@ -201,7 +201,7 @@ public class ClassDG{
     double[] point = getPoint(name);
     nodes +=
      sigmaNode(Arrays.asList(name, DGraph.get(name).size(),
-      point[0], point[1], selectColor(name), 10));
+      point[0], point[1], selectColor(name), 1));
     nodes += ",";
 
     //edges

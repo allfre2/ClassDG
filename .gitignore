@@ -1,6 +1,6 @@
 #whitelist
 *
-!sigma/
+!sigma/*
 !resources/
 !ClassDG.java
 !index.html

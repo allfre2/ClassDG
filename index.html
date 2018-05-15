@@ -10,16 +10,52 @@
 </style>
 </head>
 <body>
-<div id="container"></div>
 <script src="sigma/sigma.min.js"></script>
-<!--script src="sigma.layout.forceAtlas2.min.js"></script-->
 <script src="sigma/sigma.parsers.json.min.js"></script>
+<script src ="sigma/sigma.exporters.svg.min.js"></script>
+<script src ="sigma/sigma.layout.forceAtlas2.min.js"></script>
+<script src ="sigma/sigma.layout.noverlap.min.js"></script>
+<script src ="sigma/sigma.neo4j.cypher.min.js"></script>
+<script src ="sigma/sigma.parsers.gexf.min.js"></script>
+<script src ="sigma/sigma.pathfinding.astar.min.js"></script>
+<script src ="sigma/sigma.plugins.animate.min.js"></script>
+<script src ="sigma/sigma.plugins.dragNodes.min.js"></script>
+<script src ="sigma/sigma.plugins.filter.min.js"></script>
+<script src ="sigma/sigma.plugins.neighborhoods.min.js"></script>
+<script src ="sigma/sigma.plugins.relativeSize.min.js"></script>
+<script src ="sigma/sigma.renderers.customEdgeShapes.min.js"></script>
+<script src ="sigma/sigma.renderers.customShapes.min.js"></script>
+<script src ="sigma/sigma.renderers.edgeDots.min.js"></script>
+<script src ="sigma/sigma.renderers.edgeLabels.min.js"></script>
+<script src ="sigma/sigma.renderers.parallelEdges.min.js"></script>
+<script src ="sigma/sigma.renderers.snapshot.min.js"></script>
+<script src ="sigma/sigma.require.js"></script>
+<script src ="sigma/sigma.statistics.HITS.min.js"></script>
+
+<div id="container"></div>
+
 <script src="data.js"></script>
 <script>
   s = new sigma({
    graph: data,
-   container: 'container'
+   container: 'container',
+   settings: {
+    minNodeSize: 3,
+    maxNodeSize: 10
+   }   
   });
+
+  var nodes = s.graph.nodes();
+  s.bind('overNode', function (d) {
+   d.data.node.size = maxNodeSize;
+   s.refresh();
+  });
+
+  s.bind('outNode', function (d) {
+   d.data.node.size = minNodeSize;
+   s.refresh();
+  });
+
 </script>
 </body>
 </html>
