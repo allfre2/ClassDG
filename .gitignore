@@ -1,7 +1,8 @@
 #whitelist
 *
-!sigma/*
-!resources/*
+!*/
+!sigma/**
+!resources/**
 !ClassDG.java
 !index.html
 !.gitignore
