@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import java.awt.Dimension;
 public class ClassDG{
 
  HashMap<String, List<String>> DGraph;
+ HashSet<List<String>> cycles;
  List<File> javaFiles;
  List<String> classNames;
 
@@ -59,6 +61,8 @@ public class ClassDG{
       .collect(Collectors.toList())));
    }
 
+   detectCycles();
+
     nodePoints = new double[javaFiles.size()][2];
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     width = (int)screenSize.getWidth();
@@ -90,6 +94,69 @@ public class ClassDG{
   return lines;
  }
 
+ private void detectCycles(){
+
+  cycles = new HashSet<List<String>>();
+  List<String> visited = new ArrayList<>();
+
+  for(final Map.Entry<String, List<String>> entry: DGraph.entrySet()){
+    String key = entry.getKey();
+    if(!visited.contains(key)){
+     visited.add(key);
+
+     List<String> posibleCycles = new ArrayList<String>(entry.getValue());
+     posibleCycles.retainAll(visited);
+
+      // Look for cycles
+      for(String node: posibleCycles){
+       List<String> cycle = recordCycle(visited, node, key);
+       if(!cycle.isEmpty() && !cycles.contains(cycle)){
+        cycles.add(cycle);
+       }
+      }
+    }
+  }
+ }
+
+ private List<String>
+  recordCycle(List<String> visited,
+                    String start,
+                    String end)
+ {
+  Stack<String> path = new Stack<>();
+  path.push(start);
+
+  return followPath(visited, path, end);
+ }
+
+ private List<String>
+  followPath(List<String> visited,
+            Stack<String> path,
+            String        end)
+ {
+
+  List<String> cycle = new ArrayList<>();
+
+  if(DGraph.get(path.peek()).contains(end)){
+    cycle.addAll(path);
+    cycle.add(end);
+  }
+  else{
+    List<String> adj = new ArrayList<String>(DGraph.get(path.peek()));
+    adj.retainAll(visited);
+    adj.removeAll(path);
+  
+    for(String node: adj){
+     path.push(node);
+     cycle = followPath(visited, path, end);
+     if(!cycle.isEmpty())
+      break;
+     path.pop();
+    }
+  }
+  return cycle;
+ }
+
  private String getClassName(File f){
   return f.getName().replaceAll("\\.java", "");
  }
@@ -105,7 +172,8 @@ public class ClassDG{
   for(int i = 0; i < numberOfFiles; ++i){
 
     double shrink =
-      1.0 - (double)(DGraph.get(getClassName(javaFiles.get(i))).size()/numberOfFiles-1);
+      //1.0 -
+    (double)(DGraph.get(getClassName(javaFiles.get(i))).size()/numberOfFiles-1);
 
     if(randomShape){
      nodePoints[i][0] = new Random().nextDouble();
@@ -122,47 +190,76 @@ public class ClassDG{
   }
  }
 
- // Refactor this hideous method asap
  public String getSigmaJsonDG(){
 
-  String json = "{\n  \"nodes\": [";
-  int maxAdjEdges = classNames.size()-1;
-  String[] colors = {"#8fbc8f","#7fffd4","#ffd700",
-                     "#d2691e","#6495ed","#00008b",
-                     "#006400","#483d8b","#2f4f4f","#8b0000"};
-  for(int i = 0; i < classNames.size(); ++i){
-    String name = classNames.get(i);
-    double tmp = ((double)DGraph.get(name).size()/(double)maxAdjEdges)*100;
-    int color = (int) Math.floor(tmp/9);
-    color = color > colors.length-1 ? colors.length-1 : color;
-    json += "\n   {\n    ";
-    json += "\"id\": \"" + classNames.get(i) + "\",\n";
-    json += "    \"label\": \"" + name + "(" + DGraph.get(name).size() + ")" + "\",\n";
-    json += "    \"x\": " + nodePoints[i][0] + ",\n";
-    json += "    \"y\": " + nodePoints[i][1] + ",\n";
-    json += "    \"color\": \"" + colors[color] + "\",\n";
-    json += "    \"size\": 10\n";
-    json += "   },";
-  }
-   json = json.substring(0,json.length()-1); // Remove trailing comma
-   json += "\n ],\n";
+  String nodes = "{\n  \"nodes\": [";
+  String edges = "\n ],\n  \"edges\": [";
 
-  json += "  \"edges\": [";
-  for(int i = 0; i < classNames.size(); ++i){
-    String name = classNames.get(i);
-   for(String target: DGraph.get(name)){
-    json += "\n   {\n";
-    json += "     \"id\": \"" + name + "-" + target + "\",\n";
-    json += "     \"source\": \"" + name + "\",\n";
-    json += "     \"target\": \"" + target + "\",\n";
+  for(String name: classNames){
+    //nodes
+    double[] point = getPoint(name);
+    nodes +=
+     sigmaNode(Arrays.asList(name, DGraph.get(name).size(),
+      point[0], point[1], selectColor(name), 10));
+    nodes += ",";
+
+    //edges
+    for(String target: DGraph.get(name)){
+     edges += sigmaEdge(Arrays.asList(name, target));
+     edges += ",";
+    }
+  }
+   // Remove trailing comma
+   nodes = nodes.substring(0,nodes.length()-1);
+   edges = edges.substring(0,edges.length()-1);
+
+   return nodes + edges + "\n ]\n}";
+ }
+
+ private String sigmaNode(List<?> fields){
+   if(fields.size() < 6) return "{}";
+  String json = "\n   {\n    ";
+    json += "\"id\": \"" + fields.get(0) + "\",\n";
+    json += "    \"label\": \"" + fields.get(0) +
+            "(" + fields.get(1) + ")" + "\",\n";
+    json += "    \"x\": " + fields.get(2) + ",\n";
+    json += "    \"y\": " + fields.get(3) + ",\n";
+    json += "    \"color\": \"" + fields.get(4) + "\",\n";
+    json += "    \"size\": " + fields.get(5) + "\n";
+    json += "   }";
+
+    return json;
+ }
+
+ private String sigmaEdge(List<?> fields){
+   if(fields.size() < 2) return "{}";
+    String json = "\n   {\n";
+    json += "     \"id\": \"" + fields.get(0) + "-" + fields.get(1) + "\",\n";
+    json += "     \"source\": \"" + fields.get(0) + "\",\n";
+    json += "     \"target\": \"" + fields.get(1) + "\",\n";
     json += "     \"type\": \"arrow\"\n";
-    json += "   },";
-   }
-  }
-   json = json.substring(0,json.length()-1);
-   json += "\n ]\n}";
+    json += "   }";
 
-   return json;
+    return json;
+ }
+
+ private String selectColor(String className){
+  String[] colors = {
+    "#8fbc8f","#7fffd4","#ffd700", "#d2691e","#6495ed",
+    "#00008b", "#006400","#483d8b","#2f4f4f","#8b0000"
+  };
+
+  double tmp = ((double)DGraph.get(className).size()
+               /((double)classNames.size()-1))*100;
+  int color = (int) Math.floor(tmp/9);
+  color = color > colors.length-1 ? colors.length-1 : color;
+
+  return colors[color];
+ }
+
+ public double[] getPoint(String className){
+  int i = classNames.indexOf(className);
+  return nodePoints[i];
  }
 
  public void createSigmaJsonFile(){
@@ -182,11 +279,18 @@ public class ClassDG{
   }
  }
 
+ public void printCycles(){
+  System.out.println("Circular Dependencies:");
+  cycles.stream()
+        .forEach(System.out::println);
+ }
+
  public static void main(String[] args){
   if(args.length < 1){
     System.out.println("\nUsage:\n\tjava ClassDG [directory]\n");
   }else{
     ClassDG dg = new ClassDG(args[0]);
+      dg.printCycles();
       dg.setRandomShape(false);
       dg.createSigmaJsonFile();
   }
