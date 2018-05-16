@@ -171,19 +171,21 @@ public class ClassDG{
 
   for(int i = 0; i < numberOfFiles; ++i){
 
-    double shrink =
-      1.0 -
-    (double)(DGraph.get(getClassName(javaFiles.get(i))).size()/numberOfFiles-1);
+    double shrink = .8+
+    (((double)DGraph.get(getClassName(javaFiles.get(i))).size()/(double)numberOfFiles));
+
+    System.out.println(DGraph.get(getClassName(javaFiles.get(i))).size());
+    System.out.println(numberOfFiles-1);
+    System.out.println(shrink);
+    System.out.println("--------");
 
     if(randomShape){
      nodePoints[i][0] = new Random().nextDouble();
      nodePoints[i][1] = new Random().nextDouble();
     }else{
-      double radius = r*shrink;
-     nodePoints[i][0] = center[0] + (radius*Math.cos((i+1)*θ));
-     nodePoints[i][1] = center[1] + (radius*Math.sin((i+1)*θ));
-     nodePoints[i][0] -= shrink;
-     nodePoints[i][1] -= shrink;
+      double radius = r;
+     nodePoints[i][0] = shrink*center[0] + (radius*Math.cos((i+1)*θ));
+     nodePoints[i][1] = shrink*center[1] + (radius*Math.sin((i+1)*θ));
     }
 
     x = nodePoints[i][0];
@@ -193,6 +195,7 @@ public class ClassDG{
 
  public String getSigmaJsonDG(){
 
+  int maxSize = 10;
   String nodes = "{\n  \"nodes\": [";
   String edges = "\n ],\n  \"edges\": [";
 
@@ -201,7 +204,8 @@ public class ClassDG{
     double[] point = getPoint(name);
     nodes +=
      sigmaNode(Arrays.asList(name, DGraph.get(name).size(),
-      point[0], point[1], selectColor(name), 15));
+      point[0], point[1], selectColor(name),
+      ((DGraph.get(name).size() /((double)classNames.size()-1))*maxSize)+maxSize));
     nodes += ",";
 
     //edges
