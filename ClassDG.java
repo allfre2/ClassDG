@@ -174,11 +174,6 @@ public class ClassDG{
     double shrink = .8+
     (((double)DGraph.get(getClassName(javaFiles.get(i))).size()/(double)numberOfFiles));
 
-    System.out.println(DGraph.get(getClassName(javaFiles.get(i))).size());
-    System.out.println(numberOfFiles-1);
-    System.out.println(shrink);
-    System.out.println("--------");
-
     if(randomShape){
      nodePoints[i][0] = new Random().nextDouble();
      nodePoints[i][1] = new Random().nextDouble();
