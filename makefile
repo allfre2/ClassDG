@@ -1,5 +1,5 @@
 BROWSER=x-www-browser
-TestDirectory= testCycles/
+TestDirectory= $(projdir)/songs
 
 build:
 	@javac *.java
