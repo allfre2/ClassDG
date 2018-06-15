@@ -31,23 +31,26 @@ public class ClassDG{
 
  boolean randomShape = false;
 
+ public ClassDG(String[] paths){
+  for(String path: paths)
+    extractFiles(path);
+  buildGraph();
+ }
+
  public ClassDG(String path){
+  extractFiles(path);
+  buildGraph();
+ }
 
-  DGraph = new HashMap<>();
-
-  javaFiles =
-    Arrays
-     .asList((new File(path))
-     .listFiles())
-     .stream()
-     .filter(f -> !f.isDirectory() && f.getName().endsWith(".java"))
-     .collect(Collectors.toList());
+ void buildGraph(){
 
   classNames =
     javaFiles
      .stream()
      .map(this::getClassName)
      .collect(Collectors.toList());
+
+  DGraph = new HashMap<>();
 
   for(File file: javaFiles){
      String type = getClassName(file);
@@ -68,6 +71,23 @@ public class ClassDG{
     width = (int)screenSize.getWidth()/8;
     height = (int)screenSize.getHeight()/8;
     calcNodePoints();
+ }
+
+ // TODO avoid duplicate file names
+ void extractFiles(String path){
+  if(javaFiles == null)
+    javaFiles = new ArrayList<>();
+
+  List<File>
+   files =
+     Arrays
+      .asList((new File(path))
+      .listFiles())
+      .stream()
+      .filter(f -> !f.isDirectory() && f.getName().endsWith(".java"))
+      .collect(Collectors.toList());
+
+  javaFiles.addAll(files);
  }
 
  public void setRandomShape(boolean value){
@@ -290,7 +310,8 @@ public class ClassDG{
     System.out.println("\nUsage:\n\tjava ClassDG [directory]\n");
     System.exit(-1);
   }else{
-    ClassDG dg = new ClassDG(args[0]);
+    System.out.println(args);
+    ClassDG dg = new ClassDG(args);
       dg.printCycles();
       dg.setRandomShape(false);
       dg.createSigmaJsonFile();
