@@ -87,7 +87,9 @@ public class ClassDG{
       .filter(f -> !f.isDirectory() && f.getName().endsWith(".java"))
       .collect(Collectors.toList());
 
-  javaFiles.addAll(files);
+  for(File f: files)
+    if(!javaFiles.contains(f))
+      javaFiles.add(f);
  }
 
  public void setRandomShape(boolean value){
@@ -310,7 +312,6 @@ public class ClassDG{
     System.out.println("\nUsage:\n\tjava ClassDG [directory]\n");
     System.exit(-1);
   }else{
-    System.out.println(args);
     ClassDG dg = new ClassDG(args);
       dg.printCycles();
       dg.setRandomShape(false);
