@@ -72,7 +72,7 @@ public class Sigma{
 
  private String jsonGraph(){
 
-  int maxSize = 10;
+  int maxSize = 20;
   String sigmaNodes = "{\n  \"nodes\": [";
   String sigmaEdges = "\n ],\n  \"edges\": [";
 
@@ -82,7 +82,7 @@ public class Sigma{
     sigmaNodes +=
      jsonNode(Arrays.asList(name, graph.get(name).size(),
       p[0], p[1], selectColor(name),
-      ((graph.get(name).size() /((double)nodes.size()-1))*maxSize)+maxSize));
+      ((graph.get(name).size() /((double)nodes.size()))*maxSize)+(maxSize/2)));
     sigmaNodes += ",";
 
     //sigmaEdges
