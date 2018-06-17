@@ -16,7 +16,10 @@ import java.util.Random;
 import java.awt.Toolkit;
 import java.awt.Dimension;
 
-// Creates a HashMap that contains a Class "Dependency" Graph
+/**
+ * creates a hashmap that contains
+ * a class "dependency" graph
+ */
 public class ClassDG{
 
  HashMap<String, List<String>> DGraph;
@@ -64,7 +67,7 @@ public class ClassDG{
       .collect(Collectors.toList())));
    }
 
-   detectCycles();
+    detectCycles();
 
     nodePoints = new double[javaFiles.size()][2];
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -73,7 +76,6 @@ public class ClassDG{
     calcNodePoints();
  }
 
- // TODO avoid duplicate file names
  void extractFiles(String path){
   if(javaFiles == null)
     javaFiles = new ArrayList<>();
@@ -87,9 +89,11 @@ public class ClassDG{
       .filter(f -> !f.isDirectory() && f.getName().endsWith(".java"))
       .collect(Collectors.toList());
 
-  for(File f: files)
-    if(!javaFiles.contains(f))
-      javaFiles.add(f);
+  // Ensure there are no duplicates
+  HashSet<File> fileSet = new HashSet<>();
+  fileSet.addAll(javaFiles);
+  fileSet.addAll(files);
+  javaFiles = new ArrayList<>(fileSet);
  }
 
  public void setRandomShape(boolean value){

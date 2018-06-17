@@ -1,13 +1,15 @@
 BROWSER=x-www-browser
-BASEDIR=/home/allfre2/backupnew/proyectos/practica/java/musicTools/src/main/java/com/allfre2/musicruler
 
+#For tests
+BASEDIR=/home/allfre2/backupnew/proyectos/practica/java/musicTools/src/main/java/com/allfre2/musicruler
 ARGS=$(BASEDIR) $(BASEDIR)/songs $(BASEDIR)/tools
+TESTDIR=$(ARGS)
 
 build:
 	@javac *.java
 
 run: build
-	@java ClassDG $(ARGS)
+	@java ClassDG $(TESTDIR)
 
 clean:
 	@rm *.class data.js
