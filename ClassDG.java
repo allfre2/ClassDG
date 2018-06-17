@@ -89,7 +89,7 @@ public class ClassDG{
       .filter(f -> !f.isDirectory() && f.getName().endsWith(".java"))
       .collect(Collectors.toList());
 
-  // Ensure there are no duplicates
+  // Make sure there are no duplicates
   HashSet<File> fileSet = new HashSet<>();
   fileSet.addAll(javaFiles);
   fileSet.addAll(files);
