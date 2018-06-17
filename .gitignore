@@ -4,6 +4,7 @@
 !sigma/**
 !resources/**
 !ClassDG.java
+!Sigma.java
 !index.html
 !.gitignore
 !makefile
