@@ -20,7 +20,7 @@ public class Sigma{
  final Random rnd = new Random();
  boolean randomShape = false;   
 
- static final String fileName = "data";
+ static final String defaultFileName = "data";
 
  final HashMap<String, List<String>> graph;
  final List<String> nodes;
@@ -144,15 +144,18 @@ public class Sigma{
   return points[i];
  }
 
- public void writeJSFile(){
+ public void writeJSFile(String path){
   String jsonG = jsonGraph();
 
+  if(path == null || path.isEmpty())
+  	path = "./";
+
   try {
-    File file = new File("./" + fileName + ".js");
+    File file = new File(path + defaultFileName + ".js");
     file.createNewFile();
 
     BufferedWriter br = new BufferedWriter(new FileWriter(file));
-    br.write(fileName + " =\n" + jsonG + ";\n");
+    br.write("data =\n" + jsonG + ";\n");
     br.close();
 
   }catch(IOException e){

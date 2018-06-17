@@ -150,8 +150,8 @@ public class ClassDG{
   return cycle;
  }
 
- public void createFile(){
-  sigma.writeJSFile();
+ public void createFile(String path){
+  sigma.writeJSFile(path);
  }
 
  public void printAdjTable(){
@@ -173,7 +173,7 @@ public class ClassDG{
   }else{
     ClassDG dg = new ClassDG(args);
       dg.printCycles();
-      dg.createFile();
+      dg.createFile("./");
   }
  }
 }
