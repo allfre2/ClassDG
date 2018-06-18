@@ -22,7 +22,7 @@ public class ClassDG{
 
  HashMap<String, List<String>> DGraph;
  HashSet<List<String>> cycles;
- Sigma sigma;
+ Sigma<String> sigma;
 
  public ClassDG(String[] paths){
   for(String path: paths)
@@ -70,7 +70,7 @@ public class ClassDG{
    }
    detectCycles();
 
-   sigma = new Sigma(DGraph);
+   sigma = new Sigma<String>(DGraph);
  }
 
  String getClassName(File f){

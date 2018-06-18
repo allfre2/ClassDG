@@ -12,7 +12,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class Sigma{
+public class Sigma<T>{
 
  int width, height;
  double[][] points;
@@ -20,12 +20,12 @@ public class Sigma{
  final Random rnd = new Random();
  boolean randomShape = false;   
 
- static final String defaultFileName = "data";
+ static final String jsFileName = "data";
 
- final HashMap<String, List<String>> graph;
- final List<String> nodes;
+ final HashMap<T, List<T>> graph;
+ final List<T> nodes;
 
- public Sigma(HashMap<String, List<String>> graph){
+ public Sigma(HashMap<T, List<T>> graph){
  	this.graph = graph;
  	this.nodes = new ArrayList<>(graph.keySet());
  	setScreenDimentions();
@@ -76,18 +76,18 @@ public class Sigma{
   String sigmaNodes = "{\n  \"nodes\": [";
   String sigmaEdges = "\n ],\n  \"edges\": [";
 
-  for(String name: nodes){
+  for(T node: nodes){
     //sigmaNodes
-    double[] p = getPoint(name);
+    double[] p = getPoint(node);
     sigmaNodes +=
-     jsonNode(Arrays.asList(name, graph.get(name).size(),
-      p[0], p[1], selectColor(name),
-      ((graph.get(name).size() /((double)nodes.size()))*maxSize)+(maxSize/2)));
+     jsonNode(Arrays.asList(node, graph.get(node).size(),
+      p[0], p[1], selectColor(node),
+      ((graph.get(node).size() /((double)nodes.size()))*maxSize)+(maxSize/2)));
     sigmaNodes += ",";
 
     //sigmaEdges
-    for(String target: graph.get(name)){
-     sigmaEdges += jsonEdge(Arrays.asList(name, target));
+    for(T target: graph.get(node)){
+     sigmaEdges += jsonEdge(Arrays.asList(node, target));
      sigmaEdges += ",";
     }
   }
@@ -125,7 +125,7 @@ public class Sigma{
     return json;
  }
 
- String selectColor(String node){
+ String selectColor(T node){
   String[] colors = {
     "#8fbc8f","#7fffd4","#ffd700", "#d2691e","#6495ed",
     "#00008b", "#006400","#483d8b","#2f4f4f","#8b0000"
@@ -139,7 +139,7 @@ public class Sigma{
   return colors[color];
  }
 
- double[] getPoint(String node){
+ double[] getPoint(T node){
   int i = nodes.indexOf(node);
   return points[i];
  }
@@ -151,7 +151,7 @@ public class Sigma{
   	path = "./";
 
   try {
-    File file = new File(path + defaultFileName + ".js");
+    File file = new File(path + jsFileName + ".js");
     file.createNewFile();
 
     BufferedWriter br = new BufferedWriter(new FileWriter(file));
