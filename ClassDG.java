@@ -138,7 +138,7 @@ public class ClassDG{
     List<String> adj = new ArrayList<String>(DGraph.get(path.peek()));
     adj.retainAll(visited);
     adj.removeAll(path);
-  
+
     for(String node: adj){
      path.push(node);
      cycle = followPath(visited, path, end);

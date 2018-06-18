@@ -18,7 +18,7 @@ public class Sigma<T>{
  double[][] points;
 
  final Random rnd = new Random();
- boolean randomShape = false;   
+ boolean randomShape = false;
 
  static final String jsFileName = "data";
 
@@ -26,21 +26,21 @@ public class Sigma<T>{
  final List<T> nodes;
 
  public Sigma(HashMap<T, List<T>> graph){
- 	this.graph = graph;
- 	this.nodes = new ArrayList<>(graph.keySet());
- 	setScreenDimentions();
- 	calcNodePoints();
+    this.graph = graph;
+    this.nodes = new ArrayList<>(graph.keySet());
+    setScreenDimentions();
+    calcNodePoints();
  }
 
  void setScreenDimentions(){
- 	points = new double[nodes.size()][2];
+    points = new double[nodes.size()][2];
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     width = (int)screenSize.getWidth()/8;
     height = (int)screenSize.getHeight()/8;
  }
 
  void calcNodePoints(){
-  int[] center = {width/2, height/2}; 
+  int[] center = {width/2, height/2};
   double x = center[0];
   double y = height;
   double θ = 360 / (double)nodes.size();
@@ -148,7 +148,7 @@ public class Sigma<T>{
   String jsonG = jsonGraph();
 
   if(path == null || path.isEmpty())
-  	path = "./";
+    path = "./";
 
   try {
     File file = new File(path + jsFileName + ".js");
