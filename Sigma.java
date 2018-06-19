@@ -2,6 +2,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 import java.util.Random;
 
 import java.awt.Toolkit;
@@ -71,58 +72,49 @@ public class Sigma<T>{
  }
 
  private String jsonGraph(){
+  return
+   "{\n  \"nodes\": ["+
 
-  int maxSize = 20;
-  String sigmaNodes = "{\n  \"nodes\": [";
-  String sigmaEdges = "\n ],\n  \"edges\": [";
+     nodes
+      .stream()
+      .map(this::jsonNode)
+      .collect(Collectors.joining(","))+
 
-  for(T node: nodes){
-    //sigmaNodes
-    double[] p = getPoint(node);
-    sigmaNodes +=
-     jsonNode(Arrays.asList(node, graph.get(node).size(),
-      p[0], p[1], selectColor(node),
-      ((graph.get(node).size() /((double)nodes.size()))*maxSize)+(maxSize/2)));
-    sigmaNodes += ",";
+   "\n ],\n  "+
+   "\"edges\": ["+
 
-    //sigmaEdges
-    for(T target: graph.get(node)){
-     sigmaEdges += jsonEdge(Arrays.asList(node, target));
-     sigmaEdges += ",";
-    }
-  }
-   // Remove trailing comma
-   sigmaNodes = sigmaNodes.substring(0,sigmaNodes.length()-1);
-   sigmaEdges = sigmaEdges.substring(0,sigmaEdges.length()-1);
+     nodes
+      .stream()
+      .map(node ->
+        graph.get(node).stream()
+             .map(target -> jsonEdge(node, target))
+             .collect(Collectors.joining(",")))
+      .filter(edge -> !edge.isEmpty())
+      .collect(Collectors.joining(","))+
 
-   return sigmaNodes + sigmaEdges + "\n ]\n}";
+   "\n ]\n}";
  }
 
- String jsonNode(List<?> fields){
-   if(fields.size() < 6) return "{}";
-  String json = "\n   {\n    ";
-    json += "\"id\": \"" + fields.get(0) + "\",\n";
-    json += "    \"label\": \"" + fields.get(0) +
-            "(" + fields.get(1) + ")" + "\",\n";
-    json += "    \"x\": " + fields.get(2) + ",\n";
-    json += "    \"y\": " + fields.get(3) + ",\n";
-    json += "    \"color\": \"" + fields.get(4) + "\",\n";
-    json += "    \"size\": " + fields.get(5) + "\n";
-    json += "   }";
-
-    return json;
+ String jsonNode(T node){
+  return
+    "\n   {\n"
+    + "    \"id\": \"" + node + "\",\n"
+    + "    \"label\": \""+node+"("+ graph.get(node).size()+")"+"\",\n"
+    + "    \"x\": " + getPoint(node)[0] + ",\n"
+    + "    \"y\": " + getPoint(node)[1] + ",\n"
+    + "    \"color\": \"" + selectColor(node) + "\",\n"
+    + "    \"size\": " + pointSize(node) + "\n"
+    + "   }";
  }
 
- String jsonEdge(List<?> fields){
-   if(fields.size() < 2) return "{}";
-    String json = "\n   {\n";
-    json += "     \"id\": \"" + fields.get(0) + "-" + fields.get(1) + "\",\n";
-    json += "     \"source\": \"" + fields.get(0) + "\",\n";
-    json += "     \"target\": \"" + fields.get(1) + "\",\n";
-    json += "     \"type\": \"arrow\"\n";
-    json += "   }";
-
-    return json;
+ String jsonEdge(T node, T target){
+  return
+    "\n   {\n"
+    + "     \"id\": \"" + node + "-" + target + "\",\n"
+    + "     \"source\": \"" + node + "\",\n"
+    + "     \"target\": \"" + target + "\",\n"
+    + "     \"type\": \"arrow\"\n"
+    + "   }";
  }
 
  String selectColor(T node){
@@ -142,6 +134,14 @@ public class Sigma<T>{
  double[] getPoint(T node){
   int i = nodes.indexOf(node);
   return points[i];
+ }
+
+ double pointSize(T node){
+  int maxSize = 20;
+  return ((graph.get(node).size()
+          /((double)nodes.size()))
+          *maxSize)
+          +(maxSize/2);
  }
 
  public void writeJSFile(String path){
