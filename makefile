@@ -12,7 +12,7 @@ run: build
 	@java ClassDG $(TESTDIR)
 
 clean:
-	@rm *.class data.js
+	@rm *.class data.js cycles.js
 
 test: build run
 	@$(BROWSER) index.html &>/dev/null &

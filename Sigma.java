@@ -2,6 +2,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.Random;
 
@@ -115,12 +116,12 @@ public class Sigma<T>{
     .collect(Collectors.joining(","));
  }
 
- String color(T node){
-  String[] colors = {
-    "#8fbc8f","#7fffd4","#ffd700", "#d2691e","#6495ed",
-    "#00008b", "#006400","#483d8b","#2f4f4f","#8b0000"
-  };
+ final String[] colors = {
+   "#8fbc8f","#7fffd4","#ffd700", "#d2691e","#6495ed",
+   "#00008b", "#006400","#483d8b","#2f4f4f","#8b0000"
+ };
 
+ String color(T node){
   double tmp = ((double)graph.get(node).size()
                /((double)nodes.size()-1))*100;
   int color = (int) Math.floor(tmp/9);
@@ -142,18 +143,21 @@ public class Sigma<T>{
           +(maxSize/2);
  }
 
- public void writeJSFile(String path){
+ public void writeJSFile(String path, String filename){
   String jsonG = jsonGraph();
 
   if(path == null || path.isEmpty())
     path = "./";
 
+  if(filename == null || filename.isEmpty())
+    filename = jsFileName;
+
   try {
-    File file = new File(path + jsFileName + ".js");
+    File file = new File(path + filename + ".js");
     file.createNewFile();
 
     BufferedWriter br = new BufferedWriter(new FileWriter(file));
-    br.write("data =\n" + jsonG + ";\n");
+    br.write(filename + " =\n" + jsonG + ";\n");
     br.close();
 
   }catch(IOException e){

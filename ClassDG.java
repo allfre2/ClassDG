@@ -35,6 +35,12 @@ public class ClassDG{
   buildGraph();
  }
 
+ public ClassDG(HashMap<String, List<String>> graph){
+  this.DGraph = graph;
+  detectCycles();
+  sigma = new Sigma<String>(DGraph);
+ }
+
  void extractFiles(String path){
   if(javaFiles == null)
     javaFiles = new ArrayList<>();
@@ -150,8 +156,33 @@ public class ClassDG{
   return cycle;
  }
 
- public void createFile(String path){
-  sigma.writeJSFile(path);
+ HashMap<String, List<String>> cycleGraph(){
+  HashMap<String, List<String>> cycleG = new HashMap<>();
+
+  for(List<String> cycle: cycles){
+    List<String> tmp = new ArrayList<>();
+    for(int i = 0; i < cycle.size(); ++i){
+     if(!cycleG.containsKey(cycle.get(i))){
+      cycleG.put(cycle.get(i), new ArrayList<String>());
+     }
+
+     tmp = cycleG.get(cycle.get(i));
+     int target = (i+1) % cycle.size();
+
+     if(!tmp.contains(cycle.get(target)))
+      tmp.add(cycle.get(target));
+    }
+  }
+  return cycleG;
+ }
+
+ public void createCyclesFile(String path, String filename){
+  ClassDG dg = new ClassDG(cycleGraph());
+  dg.createFile(path, filename);
+ }
+
+ public void createFile(String path, String filename){
+  sigma.writeJSFile(path, filename);
  }
 
  public void printAdjTable(){
@@ -173,7 +204,8 @@ public class ClassDG{
   }else{
     ClassDG dg = new ClassDG(args);
       dg.printCycles();
-      dg.createFile("./");
+      dg.createFile("./", "data");
+      dg.createCyclesFile("./", "cycles");
   }
  }
 }
