@@ -19,7 +19,7 @@ public class Sigma<T>{
  double[][] points;
 
  final Random rnd = new Random();
- boolean randomShape = false;
+ boolean randomCoords = false;
 
  static final String jsFileName = "data";
 
@@ -29,36 +29,32 @@ public class Sigma<T>{
  public Sigma(HashMap<T, List<T>> graph){
     this.graph = graph;
     this.nodes = new ArrayList<>(graph.keySet());
-    setScreenDimentions();
-    calcNodePoints();
+    computeScreenSize();
+    computeCoords();
  }
 
- void setScreenDimentions(){
+ void computeScreenSize(){
     points = new double[nodes.size()][2];
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     width = (int)screenSize.getWidth()/8;
     height = (int)screenSize.getHeight()/8;
  }
 
- void calcNodePoints(){
+ void computeCoords(){
   int[] center = {width/2, height/2};
-  double x = center[0];
-  double y = height;
-  double θ = 360 / (double)nodes.size();
-  double r = height/2;
+  double x = center[0], y = height,
+   θ = 360 / (double)nodes.size(), r = height/2;
 
   for(int i = 0; i < nodes.size(); ++i){
-
-    double shrink = .8+
+    double scale = .8+
     (((double)graph.get(nodes.get(i)).size()/(double)nodes.size()));
 
-    if(randomShape){
+    if(randomCoords){
      points[i][0] = rnd.nextDouble();
      points[i][1] = rnd.nextDouble();
     }else{
-      double radius = r;
-     points[i][0] = shrink*center[0] + (radius*Math.cos((i+1)*θ));
-     points[i][1] = shrink*center[1] + (radius*Math.sin((i+1)*θ));
+     points[i][0] = scale*center[0] + (r*Math.cos((i+1)*θ));
+     points[i][1] = scale*center[1] + (r*Math.sin((i+1)*θ));
     }
 
     x = points[i][0];
@@ -66,14 +62,10 @@ public class Sigma<T>{
   }
  }
 
- public void setRandomShape(boolean value){
-  randomShape = value;
-  calcNodePoints();
- }
-
- private String jsonGraph(){
+ String jsonGraph(){
   return
-   "{\n  \"nodes\": ["+
+   "{\n  "+
+   "\"nodes\": ["+
 
      nodes
       .stream()
@@ -85,39 +77,45 @@ public class Sigma<T>{
 
      nodes
       .stream()
-      .map(node ->
-        graph.get(node).stream()
-             .map(target -> jsonEdge(node, target))
-             .collect(Collectors.joining(",")))
-      .filter(edge -> !edge.isEmpty())
+      .map(this::jsonEdges)
+      .filter(edges -> !edges.isEmpty())
       .collect(Collectors.joining(","))+
 
-   "\n ]\n}";
+   "\n ]"+
+ "\n}";
  }
 
- String jsonNode(T node){
+ String jsonNode(T u){
   return
     "\n   {\n"
-    + "    \"id\": \"" + node + "\",\n"
-    + "    \"label\": \""+node+"("+ graph.get(node).size()+")"+"\",\n"
-    + "    \"x\": " + getPoint(node)[0] + ",\n"
-    + "    \"y\": " + getPoint(node)[1] + ",\n"
-    + "    \"color\": \"" + selectColor(node) + "\",\n"
-    + "    \"size\": " + pointSize(node) + "\n"
+    + "    \"id\": \""+ u +"\",\n"
+    + "    \"label\": \""+u+"("+ graph.get(u).size()+")"+"\",\n"
+    + "    \"x\": "+ point(u)[0] +",\n"
+    + "    \"y\": "+ point(u)[1] +",\n"
+    + "    \"color\": \""+ color(u) +"\",\n"
+    + "    \"size\": "+ pointSize(u) +"\n"
     + "   }";
  }
 
- String jsonEdge(T node, T target){
+ String jsonEdge(T u, T v){
   return
     "\n   {\n"
-    + "     \"id\": \"" + node + "-" + target + "\",\n"
-    + "     \"source\": \"" + node + "\",\n"
-    + "     \"target\": \"" + target + "\",\n"
+    + "     \"id\": \""+ u +"-"+ v +"\",\n"
+    + "     \"source\": \""+ u +"\",\n"
+    + "     \"target\": \""+ v +"\",\n"
     + "     \"type\": \"arrow\"\n"
     + "   }";
  }
 
- String selectColor(T node){
+ String jsonEdges(T u){
+  return graph
+    .get(u)
+    .stream()
+    .map(v -> jsonEdge(u,v))
+    .collect(Collectors.joining(","));
+ }
+
+ String color(T node){
   String[] colors = {
     "#8fbc8f","#7fffd4","#ffd700", "#d2691e","#6495ed",
     "#00008b", "#006400","#483d8b","#2f4f4f","#8b0000"
@@ -131,7 +129,7 @@ public class Sigma<T>{
   return colors[color];
  }
 
- double[] getPoint(T node){
+ double[] point(T node){
   int i = nodes.indexOf(node);
   return points[i];
  }
@@ -161,5 +159,10 @@ public class Sigma<T>{
   }catch(IOException e){
     e.printStackTrace();
   }
+ }
+
+ public void randomCoords(boolean value){
+  randomCoords = value;
+  computeCoords();
  }
 }
