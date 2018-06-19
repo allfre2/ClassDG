@@ -177,8 +177,7 @@ public class ClassDG{
  }
 
  public void createCyclesFile(String path, String filename){
-  ClassDG dg = new ClassDG(cycleGraph());
-  dg.createFile(path, filename);
+  new ClassDG(cycleGraph()).createFile(path, filename);
  }
 
  public void createFile(String path, String filename){
