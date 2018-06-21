@@ -54,6 +54,18 @@ public class ClassDG{
       .filter(f -> !f.isDirectory() && f.getName().endsWith(".java"))
       .collect(Collectors.toList());
 
+  List<File>
+   dirs =
+     Arrays
+      .asList((new File(path))
+      .listFiles())
+      .stream()
+      .filter(File::isDirectory)
+      .collect(Collectors.toList());
+
+  for(File dir: dirs)
+    extractFiles(path + "/" + dir.getName() + "/");
+
   HashSet<File> fileSet = new HashSet<>(javaFiles);
   fileSet.addAll(files);
   javaFiles = new ArrayList<>(fileSet);
