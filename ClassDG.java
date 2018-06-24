@@ -197,15 +197,12 @@ public class ClassDG{
  }
 
  public void printAdjTable(){
-  for(Map.Entry<String, List<String>> entry: DGraph.entrySet()){
-   System.out.println(entry.getKey() + " -> " + entry.getValue());
-  }
+  DGraph.forEach((k, v) -> System.out.println(k + " -> " + v));
  }
 
  public void printCycles(){
   System.out.println("Circular Dependencies:");
-  cycles.stream()
-        .forEach(System.out::println);
+  cycles.forEach(System.out::println);
  }
 
  public static void main(String[] args){
@@ -214,9 +211,10 @@ public class ClassDG{
     System.exit(-1);
   }else{
     ClassDG dg = new ClassDG(args);
-      dg.printCycles();
       dg.createFile("./", "data");
+      System.out.println("Created data.js file.");
       dg.createCyclesFile("./", "cycles");
+      System.out.println("Created cycles.js file.");
   }
  }
 }
